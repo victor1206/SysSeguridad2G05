@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SysSeguridad2G05.EntidadesNegocio;
 using System.Security.Cryptography;
+using System.Net.NetworkInformation;
 
 namespace SysSeguridad2G05.AccesoDatos
 {
@@ -80,6 +81,42 @@ namespace SysSeguridad2G05.AccesoDatos
                     throw new Exception("Login ya existe");
             }
             return result;
+        }
+
+        public static async Task<int> EliminarAsync(Usuario pUsuario)
+        {
+            int result = 0;
+            using (var dbContexto = new DBContexto())
+            {
+                var usuario = await dbContexto.Usuario.FirstOrDefaultAsync(
+                    s => s.Id == pUsuario.Id
+                    );
+                dbContexto.Usuario.Remove(usuario);
+                result = await dbContexto.SaveChangesAsync();
+            }
+            return result;
+        }
+
+        public static async Task<Usuario> ObtenerPorIdAsync(Usuario pUsuario)
+        { 
+            var usuario = new Usuario();
+            using (var dbConexto = new DBContexto())
+            {
+                usuario = await dbConexto.Usuario.FirstOrDefaultAsync(
+                    s => s.Id == pUsuario.Id
+                    );
+            }
+            return usuario;
+        }
+
+        public static async Task<List<Usuario>> ObtenerTodosAsync()
+        {
+            var usuarios = new List<Usuario>();
+            using (var dbContexto = new DBContexto())
+            {
+                usuarios = await dbContexto.Usuario.ToListAsync();
+            }
+            return usuarios;  
         }
 
         #endregion
