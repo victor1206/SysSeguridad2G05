@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SysSeguridad2G05.AccesoDatos\SysSeguridad2G05.AccesoDatos.csproj" />
+    <ProjectReference Include="..\SysSeguridad2G05.EntidadesNegocio\SysSeguridad2G05.EntidadesNegocio.csproj" />
+  </ItemGroup>
+
+</Project>
