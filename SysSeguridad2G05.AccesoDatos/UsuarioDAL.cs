@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SysSeguridad2G05.EntidadesNegocio;
 using System.Security.Cryptography;
-using System.Net.NetworkInformation;
+using System.Text;
 
 namespace SysSeguridad2G05.AccesoDatos
 {
@@ -119,6 +113,64 @@ namespace SysSeguridad2G05.AccesoDatos
             return usuarios;  
         }
 
+        internal static IQueryable<Usuario> QuerySelect(
+            IQueryable<Usuario> pQuery, Usuario pUsuario)
+        {
+            if (pUsuario.Id > 0)
+                pQuery = pQuery.Where(s => s.Id == pUsuario.Id);
+            if (pUsuario.IdRol > 0)
+                pQuery = pQuery.Where(s => s.IdRol == pUsuario.IdRol);
+            if (!string.IsNullOrWhiteSpace(pUsuario.Nombre))
+                pQuery = pQuery.Where(s => s.Nombre.Contains(pUsuario.Nombre));
+            if (!string.IsNullOrWhiteSpace(pUsuario.Apellido))
+                pQuery = pQuery.Where(s => s.Apellido.Contains(pUsuario.Apellido));
+            if (!string.IsNullOrWhiteSpace(pUsuario.Login))
+                pQuery = pQuery.Where(s => s.Login == pUsuario.Login);
+            if (pUsuario.Estatus > 0)
+                pQuery = pQuery.Where(s => s.Estatus == pUsuario.Estatus);
+            if (pUsuario.FechaRegistro.Year > 1000)
+            {
+                DateTime fechaInicial = new DateTime(pUsuario.FechaRegistro.Year,
+                    pUsuario.FechaRegistro.Month, pUsuario.FechaRegistro.Day
+                    , 0, 0, 0);
+                DateTime fechaFinal = fechaInicial.AddDays(1).AddMilliseconds(-1);
+                pQuery = pQuery.Where(s => s.FechaRegistro >= fechaInicial &&
+                s.FechaRegistro <= fechaFinal);
+            }
+
+            pQuery = pQuery.OrderByDescending(s => s.Id).AsQueryable();
+            if(pUsuario.Top_Aux > 0)
+                pQuery = pQuery.Take(pUsuario.Top_Aux).AsQueryable();
+            return pQuery;
+
+        }
+
+        public static async Task<List<Usuario>> BuscarAsync(Usuario pUsuario)
+        { 
+            var Usuarios = new List<Usuario>();
+            using (var dbContexto = new DBContexto())
+            { 
+                var select = dbContexto.Usuario.AsQueryable();
+                select = QuerySelect(select, pUsuario);
+                Usuarios = await select.ToListAsync();
+            }
+            return Usuarios;
+        }
+
+        public static async Task<List<Usuario>> BuscarIncluirRolesAsync(Usuario pUsuario)
+        {
+            var Usuarios = new List<Usuario>();
+            using (var dbContexto = new DBContexto())
+            {
+                var select = dbContexto.Usuario.AsQueryable();
+                select = QuerySelect(select, pUsuario)
+                    .Include(s => s.Rol).AsQueryable();
+                Usuarios = await select.ToListAsync();
+            }
+            return Usuarios;
+        }
         #endregion
+
+
     }
 }
