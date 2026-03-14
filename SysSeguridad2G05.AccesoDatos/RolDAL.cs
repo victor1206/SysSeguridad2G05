@@ -42,8 +42,8 @@ namespace SysSeguridad2G05.AccesoDatos
             int result = 0;
             using (var dbContecto = new DBContexto())
             {
-                var rol = dbContecto.Rol.FirstOrDefaultAsync(a => a.Id == pRol.Id);
-                dbContecto.Remove(rol);//Delete from
+                var rol = await dbContecto.Rol.FirstOrDefaultAsync(a => a.Id == pRol.Id);
+                dbContecto.Rol.Remove(rol);//Delete from
                 result = await dbContecto.SaveChangesAsync();
             }
             return result;

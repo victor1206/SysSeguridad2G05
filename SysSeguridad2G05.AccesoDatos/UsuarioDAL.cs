@@ -164,7 +164,7 @@ namespace SysSeguridad2G05.AccesoDatos
             {
                 var select = dbContexto.Usuario.AsQueryable();
                 select = QuerySelect(select, pUsuario)
-                    .Include(s => s.Rol).AsQueryable();
+                    .Include(s => s.Rol).AsQueryable();//Inner Join
                 Usuarios = await select.ToListAsync();
             }
             return Usuarios;

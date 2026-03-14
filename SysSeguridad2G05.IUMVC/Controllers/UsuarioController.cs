@@ -1,14 +1,33 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using SysSeguridad2G05.EntidadesNegocio;
+using SysSeguridad2G05.LogicaNegocios;
+
 namespace SysSeguridad2G05.IUMVC.Controllers
 {
     public class UsuarioController : Controller
     {
+        UsuarioBL usuarioBl = new UsuarioBL();
+        RolBL rolBl = new RolBL();
         // GET: UsuarioController
-        public ActionResult Index()
+        public async Task<IActionResult> Index(Usuario pUsuario = null)
         {
-            return View();
+            if (pUsuario == null)
+                pUsuario = new Usuario();
+            if (pUsuario.Top_Aux == 0)
+                pUsuario.Top_Aux = 10;
+            else
+                if (pUsuario.Top_Aux == -1)
+                    pUsuario.Top_Aux = 0;
+
+            var taskBuscar = usuarioBl.BuscarIncluirRolAsync(pUsuario);
+            var taskObtenerTodosRoles = rolBl.ObtenerTodosAsync();
+            var usuarios = await taskBuscar;
+            ViewBag.Top = pUsuario.Top_Aux;
+            ViewBag.Roles = await taskObtenerTodosRoles;
+
+            return View(usuarios);
         }
 
         // GET: UsuarioController/Details/5

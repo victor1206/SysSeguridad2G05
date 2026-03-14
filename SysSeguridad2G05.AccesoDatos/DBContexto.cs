@@ -17,6 +17,7 @@ namespace SysSeguridad2G05.AccesoDatos
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(@"Data Source=VictorDuran;Initial Catalog=dbSysSeguridadG05;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
+            //optionsBuilder.UseSqlServer(@"Data Source=VictorDuran;Initial Catalog=dbSysSeguridadG05;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
         }
     }
 }

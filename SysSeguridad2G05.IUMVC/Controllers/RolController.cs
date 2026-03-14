@@ -29,5 +29,79 @@ namespace SysSeguridad2G05.IUMVC.Controllers
             }
             return View(roles);
         }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var rol = await rolBl.ObtenerPorIdAsync(new Rol { Id = id });
+            return View(rol);
+        }
+
+        public IActionResult Create()
+        {
+            ViewBag.Error = "";
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Rol pRol)
+        {
+            try
+            {
+                int result = await rolBl.CrearAsync(pRol);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.ToString();
+                return View(pRol);
+            }
+        }
+
+        public async Task<IActionResult> Edit(Rol pRol)
+        {
+            var rol = await rolBl.ObtenerPorIdAsync(pRol);
+            ViewBag.Error = "";
+            return View(rol);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int pId, Rol pRol)
+        {
+            try
+            {
+                int result = await rolBl.ModificarAsync(pRol);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.ToString();
+                return View(pRol);
+            }
+        }
+
+        public async Task<IActionResult> Delete(Rol pRol)
+        {
+            ViewBag.Error = "";
+            var rol = await rolBl.ObtenerPorIdAsync(pRol);
+            return View(rol);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id, Rol pRol)
+        {
+            try
+            {
+                var result = await rolBl.EliminarAsync(pRol);
+                return RedirectToAction(nameof(Index));
+            }
+            catch(Exception ex) 
+            { 
+                ViewBag.Error = ex.ToString();
+                return View(pRol);
+            }
+        }
     }
 }
