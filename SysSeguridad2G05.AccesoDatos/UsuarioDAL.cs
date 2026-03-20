@@ -22,11 +22,11 @@ namespace SysSeguridad2G05.AccesoDatos
 
         private static async Task<bool> ExisteLogin(Usuario pUsuario,
             DBContexto dBContexto)
-        { 
+        {
             bool result = false;
             var loginUsuarioExiste = await dBContexto.Usuario.FirstOrDefaultAsync
                 (s => s.Login == pUsuario.Login && s.Id != pUsuario.Id);
-            if (loginUsuarioExiste != null && loginUsuarioExiste.Id >0 && 
+            if (loginUsuarioExiste != null && loginUsuarioExiste.Id > 0 &&
                 loginUsuarioExiste.Login == pUsuario.Login)
                 result = true;
             return result;
@@ -38,7 +38,7 @@ namespace SysSeguridad2G05.AccesoDatos
         {
             int result = 0;
             using (var dbContexto = new DBContexto())
-            { 
+            {
                 bool existeLogin = await ExisteLogin(pUsuario, dbContexto);
                 if (existeLogin == false)
                 {
@@ -92,7 +92,7 @@ namespace SysSeguridad2G05.AccesoDatos
         }
 
         public static async Task<Usuario> ObtenerPorIdAsync(Usuario pUsuario)
-        { 
+        {
             var usuario = new Usuario();
             using (var dbConexto = new DBContexto())
             {
@@ -110,7 +110,7 @@ namespace SysSeguridad2G05.AccesoDatos
             {
                 usuarios = await dbContexto.Usuario.ToListAsync();
             }
-            return usuarios;  
+            return usuarios;
         }
 
         internal static IQueryable<Usuario> QuerySelect(
@@ -139,17 +139,17 @@ namespace SysSeguridad2G05.AccesoDatos
             }
 
             pQuery = pQuery.OrderByDescending(s => s.Id).AsQueryable();
-            if(pUsuario.Top_Aux > 0)
+            if (pUsuario.Top_Aux > 0)
                 pQuery = pQuery.Take(pUsuario.Top_Aux).AsQueryable();
             return pQuery;
 
         }
 
         public static async Task<List<Usuario>> BuscarAsync(Usuario pUsuario)
-        { 
+        {
             var Usuarios = new List<Usuario>();
             using (var dbContexto = new DBContexto())
-            { 
+            {
                 var select = dbContexto.Usuario.AsQueryable();
                 select = QuerySelect(select, pUsuario);
                 Usuarios = await select.ToListAsync();
@@ -171,6 +171,17 @@ namespace SysSeguridad2G05.AccesoDatos
         }
         #endregion
 
-
+        public static async Task<Usuario> LoginAsync(Usuario pUsuario)
+        { 
+            var usuario = new Usuario();
+            using (var dbContexto = new DBContexto())
+            {
+                EncriptarMD5(pUsuario);
+                usuario = await dbContexto.Usuario.FirstOrDefaultAsync(a => 
+                a.Login == pUsuario.Login && a.Password == pUsuario.Password && 
+                a.Estatus == (byte)Estatus_Usuario.ACTIVO);
+            }
+            return usuario;
+        }
     }
 }
