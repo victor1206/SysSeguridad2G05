@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using SysSeguridad2G05.EntidadesNegocio;
 using SysSeguridad2G05.LogicaNegocios;
+using System.Security.Claims;
 
 namespace SysSeguridad2G05.IUMVC.Controllers
 {
@@ -113,6 +116,45 @@ namespace SysSeguridad2G05.IUMVC.Controllers
                 ViewBag.Error = ex.Message;
                 var usuario = await usuarioBl.BuscarIncluirRolAsync(pUsuario);
                 return View(usuario.FirstOrDefault());
+            }
+        }
+
+        public async Task<IActionResult> Login(string ReturnUrl = null)
+        { 
+            ViewBag.Url = ReturnUrl;
+            ViewBag.Error = "";
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(Usuario pUsuario, string pReturnUrl = null)
+        {
+            try
+            {
+                var usuario = await usuarioBl.LoginAsync(pUsuario);
+                if (usuario != null && usuario.Id > 0 && pUsuario.Login == usuario.Login)
+                {
+                    usuario.Rol = await rolBl.ObtenerPorIdAsync(new Rol { Id = usuario.IdRol });
+                    var claims = new[] { new Claim(ClaimTypes.Name, usuario.Login),
+                        new Claim(ClaimTypes.Role, usuario.Rol.Nombre)};
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                       // new ClaimsPrincipal(identity));
+                }
+                else
+                    throw new Exception("Credenciales Incorrectas");
+
+                if (!string.IsNullOrWhiteSpace(pReturnUrl))
+                    return Redirect(pReturnUrl);
+                else
+                    return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex) 
+            {
+                ViewBag.Error = ex.Message;
+                ViewBag.Url = pReturnUrl;
+                return View(new Usuario { Login = pUsuario.Login});
             }
         }
     }

@@ -44,5 +44,15 @@ namespace SysSeguridad2G05.LogicaNegocios
         {
             return await UsuarioDAL.BuscarIncluirRolesAsync(pUsuario);
         }
+
+        public async Task<Usuario> LoginAsync(Usuario pUsuario)
+        { 
+            return await UsuarioDAL.LoginAsync(pUsuario);
+        }
+
+        public async Task<int> CambiarPasswordAsync(Usuario pUsuario, string pPassAnt)
+        {
+            return await UsuarioDAL.CambiarPasswordAsync(pUsuario, pPassAnt);
+        }
     }
 }
