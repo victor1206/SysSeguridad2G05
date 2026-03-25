@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ using System.Security.Claims;
 
 namespace SysSeguridad2G05.IUMVC.Controllers
 {
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class UsuarioController : Controller
     {
         UsuarioBL usuarioBl = new UsuarioBL();
@@ -119,6 +121,7 @@ namespace SysSeguridad2G05.IUMVC.Controllers
             }
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Login(string ReturnUrl = null)
         { 
             ViewBag.Url = ReturnUrl;
@@ -128,6 +131,7 @@ namespace SysSeguridad2G05.IUMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(Usuario pUsuario, string pReturnUrl = null)
         {
             try
@@ -139,8 +143,8 @@ namespace SysSeguridad2G05.IUMVC.Controllers
                     var claims = new[] { new Claim(ClaimTypes.Name, usuario.Login),
                         new Claim(ClaimTypes.Role, usuario.Rol.Nombre)};
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                       // new ClaimsPrincipal(identity));
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(identity));
                 }
                 else
                     throw new Exception("Credenciales Incorrectas");
@@ -156,6 +160,12 @@ namespace SysSeguridad2G05.IUMVC.Controllers
                 ViewBag.Url = pReturnUrl;
                 return View(new Usuario { Login = pUsuario.Login});
             }
+        }
+
+        public async Task<IActionResult> CerrarSesion(string pReturnUrl)
+        { 
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login", "Usuario");
         }
     }
 }
